@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Anfitrión - Código Morse</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; background: #121212; color: #fff; margin: 0; padding: 20px; }
+        .contenedor { max-width: 700px; margin: auto; background: #1e1e1e; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+        table { width: 100%; margin-top: 20px; border-collapse: collapse; }
+        th, td { padding: 12px; border: 1px solid #444; text-align: center; }
+        th { background: #007bff; color: white; }
+        tr:nth-child(even) { background: #2a2a2a; }
+        .codigo-actual { font-size: 24px; color: #ffeb3b; background: #333; padding: 10px; border-radius: 6px; margin: 15px 0; font-family: monospace; }
+    </style>
+</head>
+<body>
+    <div class="contenedor">
+        <h1>Panel de Control - Anfitrión</h1>
+        <p>Monitoreo de equipos en tiempo real</p>
+        
+        <div class="codigo-actual">
+            Reto Actual: <span id="display-reto">.... --- .-.. .-</span>
+        </div>
+
+        <h2>Equipos Conectados y Progreso</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Equipo</th>
+                    <th>Reto Actual</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+            <tbody id="tabla-equipos">
+                <tr><td colspan="3">Esperando equipos...</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+
+        socket.on('actualizar-tabla', (grupos) => {
+            const tbody = document.getElementById('tabla-equipos');
+            tbody.innerHTML = '';
+
+            if (Object.keys(grupos).length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3">No hay equipos conectados todavía.</td></tr>';
+                return;
+            }
+
+            for (let id in grupos) {
+                const grupo = grupos[id];
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><b>${grupo.nombre}</b></td>
+                    <td>Reto ${grupo.nivel + 1}</td>
+                    <td>${grupo.nivel >= 5 ? '🎉 ¡Completado!' : 'Jugando...'}</td>
+                `;
+                tbody.appendChild(tr);
+            }
+        });
+    </script>
+</body>
+</html>
